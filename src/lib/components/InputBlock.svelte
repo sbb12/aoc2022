@@ -2,20 +2,22 @@
     export let code:string = '';
 </script>
 
-<p>
+<pre>
     {@html code}
-</p>
+</pre>
 
 
 <style lang="scss">
-    p {
+    pre {
         display: block;
-        margin: 0;        
+        margin: 0 2rem 0 0;        
         padding: 1rem;
         height: 100%;
-        background-color: #1e1e1e;
-        color: lightgray;
+        background-color: #1b1e23;
+        color: rgb(182, 182, 182);
         font-family: monospace;
         white-space: pre-wrap;
+        background: #1b1e23;
+        border: solid 1px rgb(182, 182, 182)
     }
 </style>

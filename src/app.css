@@ -1,0 +1,40 @@
+body {
+    background-color: #09161b;
+        color: lightgray;
+        font-family: monospace;
+        white-space: pre-wrap;
+}
+
+a {
+    color: #c57b57;
+}
+
+.example {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;}
+
+.example p{
+    margin: 0;
+}
+
+button {
+    background-color: #09161b;
+    color: lightgray;    
+    border: solid 1px #c57b57;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+}
+
+.next-day {
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.next-day a {
+    font-size: 1.5rem;
+    text-decoration: none;
+}

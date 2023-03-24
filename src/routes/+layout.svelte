@@ -4,20 +4,21 @@
     import 'prismjs/components/prism-typescript.min.js';
     import '../lib/prism/vscdark.css';
     import '../lib/prism/atom-dark.css';
+
+    import '../app.css'
 </script>
 
-<body>
+<main>
     <slot />
-</body>
+</main>
 
 
 
 
 <style lang="scss">
-    body {
-        background-color: #09161b;
-        color: lightgray;
-        font-family: monospace;
-        white-space: pre-wrap;
+    main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 1rem;
     }
 </style>
