@@ -19,6 +19,17 @@ a {
     margin: 0;
 }
 
+.title{
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.title h3{
+    font-size: 1.5rem;
+}
+
 button {
     background-color: #09161b;
     color: lightgray;    

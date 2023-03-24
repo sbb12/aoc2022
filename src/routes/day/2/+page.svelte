@@ -5,7 +5,7 @@
     import Input from "../../../lib/components/Input.svelte";
     import flash from "../../../lib/utils/flash";
 
-    let day: number = 2;
+    const day: number = 2;
 
     let answersEl: HTMLElement;
     let part1: number = 0;
@@ -68,10 +68,9 @@
     </a>
  
     <div class="example">
-        <InputBlock code={`A Y
-B X
-C Z
-`} />
+<InputBlock code={`A&nbsp;Y
+B&nbsp;X
+C&nbsp;Z`} />
     
         <div>
             <p>In this game of rock paper scissors, we are awarded points a bit strangely,  we are given points based on what we pick (1 for rock, 2 for paper, 3 for scissors) and for the game outcome (0 for loss, 3 for draw, 6 if win)</p>

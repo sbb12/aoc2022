@@ -22,7 +22,7 @@
 <style>
     pre {
         margin: 0;
-        padding: 0 2rem 0 1rem;
+        padding: 0 2rem;
         width: fit-content;
     }        
 </style>

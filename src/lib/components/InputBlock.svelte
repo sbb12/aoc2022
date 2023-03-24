@@ -1,14 +1,15 @@
 <script lang="ts">
     export let code:string = '';
+    export let width:string = '';
 </script>
 
-<pre>
+<code style="width: {width}px;"> 
     {@html code}
-</pre>
+</code>
 
 
 <style lang="scss">
-    pre {
+    code {
         display: block;
         margin: 0 2rem 0 0;        
         padding: 1rem;
@@ -18,6 +19,6 @@
         font-family: monospace;
         white-space: pre-wrap;
         background: #1b1e23;
-        border: solid 1px rgb(182, 182, 182)
+        border: solid 1px rgb(182, 182, 182);
     }
 </style>
