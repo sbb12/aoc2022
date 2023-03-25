@@ -8,14 +8,20 @@
     let day: number = 5;
 
     let answersEl: HTMLElement;
-    let part1: number = 0;
-    let part2: number = 0;
+    let canvasEl: HTMLCanvasElement;
+    let ctx: CanvasRenderingContext2D;
+
+    let part1: string = '';
+    let part2: string = '';
     let solving: boolean = false;
     let input: string;
     let loaded: boolean = false;
 
+    let stacks: any = [];
+
     onMount( async() => {
         input = await fetch(`/inputs/day${day}.txt`).then(r => r.text())
+        ctx = canvasEl.getContext('2d');
         loaded = true;
     })
 
@@ -38,21 +44,50 @@
     function animate(){}
 
     async function main(animate:boolean = false){
-        part1 = 0;
-        part2 = 0;
+        console.clear()
+        part1 = '';
+        part2 = '';
         
         // split on empty line and initialise stacks
-        initialiseStacks(input.split(/\r?\n\r?\n/)[0]) 
+        const [blueprint, instructions] = input.split(/\r?\n\r?\n/)
+        initialiseStacks(blueprint) 
 
+        instructions.split(/\r?\n/).forEach(line => {
+            const [quantity, moveFrom, moveTo ] = line.match(/[0-9]+/g).map(n => Number(n))
+            console.log(line, quantity, moveFrom, moveTo)
 
+            for (let i = 0; i < quantity; i++){
+                stacks[moveTo - 1].push(stacks[moveFrom - 1].pop())
+            }
 
+        }) 
+        
+        let top = '';
+        stacks.forEach(stack => {
+            top += stack.pop()
+        })
+        console.log(top)
+        console.log(stacks)
+    
     }
 
-    function initialiseStacks(lines: string){
-        lines.split(/\r?\n/).reverse().forEach(line => {
-            
-        })
+    
+    function initialiseStacks(blueprint: string){
+        stacks = [];
+        for (let i = 0; i < 9; i++){
+            stacks.push([])
+        }
 
+        let lines = blueprint.split(/\r?\n/)
+        lines.pop() // remove last line which doesn't contain stack info
+        lines.reverse() // reverse order so we can build from the bottom up
+
+        lines.forEach(line => {
+            for (let i = 0; i < 9; i++){
+                const char = line[i*4 + 1]
+                char.match(/[A-Z]/) && stacks[i].push(char)
+            }
+        })
     }
     
 
@@ -133,6 +168,10 @@ move 1 from 1 to 2
         </svg>
     </a>
 </div>
+
+
+<canvas bind:this={canvasEl}>
+</canvas>
 
 </section>
 
