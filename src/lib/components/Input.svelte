@@ -42,8 +42,7 @@
 </button>
 
 {#if editing}
-    <overlay>
-    </overlay>
+    <overlay on:click={resetInputData}></overlay>
 
     <modal>
         <p>You can get and paste <a href="{link}" target="_blank" rel="noreferrer">your input data</a> from Advent of code here, Please paste it exactly it is on the site otherwise the code will not work.</p>
