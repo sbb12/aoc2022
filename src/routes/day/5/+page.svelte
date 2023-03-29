@@ -406,16 +406,12 @@ instructions.split(/\\r?\\n/).forEach(line => {
 part1 = stacks.reduce((acc, cur) => acc + cur.pop(), '')
 `}/>
 
-<p>Part 2 is almost identical to part 1 but this time we can use the splice function to grab chunks from the end of arrays before adding them to the target stack. This method can also be used for part 1 with a .reverse() added after the splice.</p>
+<p>Part 2 is almost identical to part 1, we still grab the instructions and final output in the same way, but this time we can use the splice function to grab chunks from the end of arrays before adding them to the target stack. 
+This method can also be used for part 1 with a .reverse() added after the splice.</p>
 
-<CodeBlock language="javascript"  code={`
-instructions.split(/\\r?\\n/).forEach(line => {
-    const [quantity, moveFrom, moveTo ] = line.match(/[0-9]+/g).map(n => Number(n))
-    
-    const temp = stacks[moveFrom - 1].splice(-quantity)
-    stacks[moveTo - 1].push(...temp)
-})
-part2 = stacks.reduce((acc, cur) => acc + cur.pop(), '')
+<CodeBlock language="javascript"  code={`   
+const temp = stacks[moveFrom - 1].splice(-quantity)
+stacks[moveTo - 1].push(...temp)
 `}/>
 
 <p bind:this={answersEl}>
@@ -446,7 +442,7 @@ part2 = stacks.reduce((acc, cur) => acc + cur.pop(), '')
     <div class="inputs">
         <button on:click={()=>{modalEl.classList.add('hidden'); stop=true;}}>X</button>
         
-        <p>This is part 1 visualised, with some options to play around</p>
+        <p>This is part 1 visualised, with some options to play around with</p>
 
         <label>Box transport speed</label>
         <input type="range" bind:value={moveDistance} min="0.1" max="1" step="0.1">

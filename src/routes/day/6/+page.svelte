@@ -5,7 +5,7 @@
     import Input from "../../../lib/components/Input.svelte";
     import flash from "../../../lib/utils/flash";
 
-    let day: number;
+    let day: number = 6;
 
     // html elements
     let answersEl: HTMLElement;
@@ -22,8 +22,14 @@
 
     // animation variables
     let stop: boolean = true;
+    let markerL: string = '';
+    let markerM: string = '';
+    let markerR: string = '';
+
 
     // animation options
+    let markerLen: number = 4;
+    let speed: number = 1;
 
     onMount( async() => {
         input = await fetch(`/inputs/day${day}.txt`).then(r => r.text())
@@ -46,16 +52,61 @@
         solving = false;
     }
 
-    function animate(){}
+    function animation(){
+        modalEl.classList.remove('hidden')
+        stop = false;
+
+        for (let i = markerLen; i < input.length; i++){
+            if (stop) break;
+
+            const marker: string = input.substring(i-markerLen, i);
+            markerL = marker.slice(0, i - markerLen).slice(-4);
+
+            let charCounts = {};
+            let duplicates = new Set()
+
+            for (let j = 0; j < markerLen; j++){
+                const char = marker[j];
+                if (charCounts[char]){
+                    charCounts[char]++;
+                    duplicates.add(char);
+                } else {
+                    charCounts[char] = 1;
+                }
+            }            
+
+            markerM = marker.substring(markerLen/2, markerLen/2+1);
+
+            markerR = marker.slice(i, markerLen);
+        }
+    }
+
+    function animate(){
+        if (stop) return;
+
+        
+    }
 
     async function main(){
         part1 = 0;
         part2 = 0;
 
-        input.split(/\r?\n/).forEach(line => {
-
-        })
-
+        markerLen = 4;
+        for(let i = markerLen; i < input.length; i++){
+            const marker = input.substring(i-markerLen, i);
+            if ( new Set(marker).size === markerLen){
+                part1 = i;
+                break;
+            }
+        }
+        markerLen = 14;
+        for(let i = markerLen; i < input.length; i++){
+            const marker = input.substring(i-markerLen, i);
+            if ( new Set(marker).size === markerLen){
+                part2 = i;
+                break;
+            }
+        }
     }
     
 
@@ -78,20 +129,24 @@
     <div class="example">
         
         <InputBlock code={`
-
+mjqjpqmgbljsphdztnvjfqwrcgsmlb
         `} />
         <div>
         
-        <p></p>
+        <p>The elves are now receiving messages on a communication device but it seems to be gibberish, we need to decipher it to locate the 'start-of-packet marker' in the message which is indicated by a sequence of 4 unique characters.
+We will also need to locate the 'start-of-message marker' which is indicated by a sequence of 14 unique characters.
+        </p>
+        <p>In this example, the first marker appears at position 7 where the 4 previous characters are all unique 'jpqm', and second marker appears at position 19 where the 14 previous characters are all unique 'qmgbljsphdztnv'.
+        </p>
 
         {#if loaded}
             <div class="interactions"> 
                 <button on:click={solve} on:keypress>
                     Solve
                 </button>
-                <!-- <button>
+                <button>
                     Animate
-                </button> -->
+                </button>
                 <Input day={1} inputData={input} on:resetInputData={resetInputData} on:saveInputData={saveInputData}/>
             </div>
         {/if}
@@ -100,11 +155,25 @@
     </div>
 </div>
 
-<p></p>
+<p>Both parts of this puzzle can be reached with the same code by just changing the value of the length, this means we can also do it for any marker length. 
+To compare the marker positions, we just need to loop through the input string and check the substring of the marker length.
+The easiest way to check if a string contains only unique characters is to convert it to a set, which will remove any duplicates.
+By checking the size of the set against the length of the marker, we can determine if it contains only unique characters.
+</p>
+
 
 <CodeBlock language="javascript"  code={`
+let markerLen = 4;
 
+for (let i = markerLen; i < input.length; i++){
+    const marker = input.substring(i - markerLen, i);
+    if ( new Set(marker).size === markerLen){
+        const answer = i;
+        break;
+    }
+}
 `}/>
+
 
 <p bind:this={answersEl}>
     This gives us the following answers:
@@ -131,14 +200,17 @@
 
 
 <div class="animation-modal hidden" bind:this={modalEl}>
-    <canvas bind:this={canvasEl}></canvas>
+    <div class="">
+        <p><span>{markerL}</span><span>{markerM}</span><span>{markerR}</span></p>
+    </div>
+
     <div class="inputs">
         <button on:click={()=>{modalEl.classList.add('hidden'); stop=true;}}>X</button>
         
         <p></p>
 
-        <label></label>
-        <input>
+        <label>Length of marker for unique characters</label>
+        <input type="range" min="1" max="15" step="1" bind:value={markerLen}>
     </div>
 </div>
 
