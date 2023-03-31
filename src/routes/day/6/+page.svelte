@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import CodeBlock from "../../../lib/components/codeBlock.svelte";
     import InputBlock from "../../../lib/components/InputBlock.svelte";
     import Input from "../../../lib/components/Input.svelte";
@@ -9,6 +9,7 @@
 
     // html elements
     let answersEl: HTMLElement;
+    let overlayEl: HTMLElement;
     let modalEl: HTMLElement;
     let canvasEl: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
@@ -25,15 +26,51 @@
     let markerL: string = '';
     let markerM: string = '';
     let markerR: string = '';
+    let count: number = 0;
+    const letterColors = {
+        a: "#FF5733",
+        b: "#C70039",
+        c: "#900C3F",
+        d: "#581845",
+        e: "#2ECC71",
+        f: "#27AE60",
+        g: "#1ABC9C",
+        h: "#16A085",
+        i: "#3498DB",
+        j: "#2980B9",
+        k: "#8E44AD",
+        l: "#9B59B6",
+        m: "#D35400",
+        n: "#F39C12",
+        o: "#FFC300",
+        p: "#FF5733",
+        q: "#C70039",
+        r: "#900C3F",
+        s: "#581845",
+        t: "#2ECC71",
+        u: "#27AE60",
+        v: "#1ABC9C",
+        w: "#16A085",
+        x: "#3498DB",
+        y: "#2980B9",
+        z: "#8E44AD",
+    }
 
 
     // animation options
-    let markerLen: number = 4;
-    let speed: number = 1;
+    let markerLen: number = 14;
+    let speed: number = 5;
+    let autoplay: boolean = true;
+
 
     onMount( async() => {
         input = await fetch(`/inputs/day${day}.txt`).then(r => r.text())
         loaded = true;
+        stop = true;
+    })
+
+    onDestroy(() => {
+        stop = true;
     })
 
     async function resetInputData(e: CustomEvent<string>){
@@ -54,37 +91,52 @@
 
     function animation(){
         modalEl.classList.remove('hidden')
+        overlayEl.classList.remove('hidden')
+        count = 0;
         stop = false;
-
-        for (let i = markerLen; i < input.length; i++){
-            if (stop) break;
-
-            const marker: string = input.substring(i-markerLen, i);
-            markerL = marker.slice(0, i - markerLen).slice(-4);
-
-            let charCounts = {};
-            let duplicates = new Set()
-
-            for (let j = 0; j < markerLen; j++){
-                const char = marker[j];
-                if (charCounts[char]){
-                    charCounts[char]++;
-                    duplicates.add(char);
-                } else {
-                    charCounts[char] = 1;
-                }
-            }            
-
-            markerM = marker.substring(markerLen/2, markerLen/2+1);
-
-            markerR = marker.slice(i, markerLen);
-        }
+        animate();
     }
 
     function animate(){
-        if (stop) return;
-
         
+        if (stop || count >= input.length) {
+            stop = true;
+            return;
+        }
+
+        if (count < markerLen){
+            markerL = ''
+        } else {
+            const previous = input.slice(0, count - markerLen)
+            markerL = previous.slice(-5)
+        }
+       
+
+        markerR = input.slice(count, count + 5);
+        
+        const marker: string = input.substring(count - markerLen, count);
+        const duplicates = new Set(marker.split('').filter(char => marker.split(char).length > 2))
+        
+        let markerChars = marker.split('')
+        
+        markerChars.map(char => {
+            if (duplicates.has(char)){
+                markerChars[markerChars.indexOf(char)] = `<span style="color: ${letterColors[char]}">${char}</span>`
+                }
+            })
+                
+        markerM = markerChars.join('')
+
+        if ((count>markerLen && duplicates.size === 0)){
+            return
+        }
+        
+        count++;
+        if (autoplay){
+            setTimeout(() => {
+                animate();
+            }, 1000 / speed);
+        }
     }
 
     async function main(){
@@ -144,7 +196,7 @@ We will also need to locate the 'start-of-message marker' which is indicated by 
                 <button on:click={solve} on:keypress>
                     Solve
                 </button>
-                <button>
+                <button on:click={animation}>
                     Animate
                 </button>
                 <Input day={1} inputData={input} on:resetInputData={resetInputData} on:saveInputData={saveInputData}/>
@@ -198,19 +250,35 @@ for (let i = markerLen; i < input.length; i++){
     </a>
 </div>
 
-
+<overlay bind:this={overlayEl} class="hidden" on:click={()=>{modalEl.classList.add('hidden'); overlayEl.classList.add('hidden'); stop=true;}} on:keypress></overlay>
 <div class="animation-modal hidden" bind:this={modalEl}>
-    <div class="">
-        <p><span>{markerL}</span><span>{markerM}</span><span>{markerR}</span></p>
+    <button class="close-button" on:click={()=>{modalEl.classList.add('hidden'); overlayEl.classList.add('hidden'); stop=true;}} on:keypress>X</button>
+
+    <div class="display">
+        <div class="count">
+            position: {count}
+        </div>
+        <div class="marker-section">
+            <span class="prev">{markerL}</span> <span class="marker">{@html markerM}</span> <span class="upcoming">{markerR}...</span>
+        </div>
     </div>
 
     <div class="inputs">
-        <button on:click={()=>{modalEl.classList.add('hidden'); stop=true;}}>X</button>
         
-        <p></p>
+        <p>This is a visualisation of the input being processed. The middle group of letters is the current marker being analyzed and any duplicate characters will be highlighted.</p>
 
-        <label>Length of marker for unique characters</label>
-        <input type="range" min="1" max="15" step="1" bind:value={markerLen}>
+        <label>Length of marker for unique characters: {markerLen}</label>
+        <input type="range" min="3" max="15" step="1" bind:value={markerLen}>
+
+        <label>Speed: {speed}</label>
+        <input type="range" min="1" max="100" step="1" bind:value={speed}>
+
+        <label for="">Autoplay</label>
+        <input type="checkbox" bind:checked={autoplay} on:change={() => {if (autoplay) {animate()}}}>
+        {#if !autoplay}
+            <button on:click={animate} on:keypress>Next</button>
+        {/if}
+
     </div>
 </div>
 
@@ -218,5 +286,79 @@ for (let i = markerLen; i < input.length; i++){
 
 
 <style lang="scss">
+
+    overlay{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+        backdrop-filter: blur(5px);
+        
+        &.hidden {
+            display: none;
+        }
+    }
+    .animation-modal{
+        width: 500px;
+        max-width: 100vw;
+        height: fit-content;
+        position: fixed;
+        background: black;
+
+        top: 50vh;
+        left: 50vw;
+        -webkit-transform: translateY(-50%) translateX(-50%); 
+        transform: translateY(-50%) translateX(-50%);
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        
+        z-index: 100;
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .close-button{
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+    }
+
     
+    .display{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .marker-section{
+        padding: 0.5rem;
+        width: fit-content;
+        border: solid 1px white;
+        border-radius: 0.2rem;
+    }
+
+    .prev, .upcoming{
+        color: #888;
+    }
+
+    .inputs{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        text-align: center;
+
+        input{
+            margin-bottom: 1rem;
+        }
+    }
 </style>

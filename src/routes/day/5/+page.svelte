@@ -9,6 +9,7 @@
 
     // elements
     let answersEl: HTMLElement;
+    let overlayEl: HTMLElement;
     let modalEl: HTMLElement;
     let canvasEl: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
@@ -63,6 +64,8 @@
     function animation(){
 
         modalEl.classList.remove('hidden')
+        overlayEl.classList.remove('hidden')
+
         yClearance = 0;
         moveInstructions = [];
         currentMove = [];
@@ -437,10 +440,11 @@ stacks[moveTo - 1].push(...temp)
     </a>
 </div>
 
+<overlay bind:this={overlayEl} class="hidden" on:click={()=>{modalEl.classList.add('hidden'); overlayEl.classList.add('hidden'); stop=true;}} on:keypress></overlay>
 <div class="animation-modal hidden" bind:this={modalEl}>
     <canvas bind:this={canvasEl}></canvas>
     <div class="inputs">
-        <button on:click={()=>{modalEl.classList.add('hidden'); stop=true;}}>X</button>
+        <button on:click={()=>{modalEl.classList.add('hidden'); overlayEl.classList.add('hidden'); stop=true;}}>X</button>
         
         <p>This is part 1 visualised, with some options to play around with</p>
 
@@ -462,13 +466,32 @@ stacks[moveTo - 1].push(...temp)
 
 
 <style lang="scss">
+    overlay{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+        backdrop-filter: blur(5px);
+
+        &.hidden {
+            display: none;
+        }
+    }
     .animation-modal{
         width: 500px;
         height: 700px;
         position: fixed;
         background: black;
-        left: calc(50vw - 250px);
-        top: calc(50vh - 350px);
+        
+        top: 50vh;
+        left: 50vw;
+        -webkit-transform: translateY(-50%) translateX(-50%); 
+        transform: translateY(-50%) translateX(-50%);
+        
+        
 
         display: flex;
         flex-direction: row;
